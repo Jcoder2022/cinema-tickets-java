@@ -4,6 +4,9 @@ import java.net.Authenticator.RequestorType;
 
 import thirdparty.paymentgateway.TicketPaymentService;
 import thirdparty.paymentgateway.TicketPaymentServiceImpl;
+import thirdparty.seatbooking.SeatReservationServiceImpl;
+
+import thirdparty.seatbooking.SeatReservationService;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeResponse;
 import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
@@ -56,6 +59,7 @@ public class TicketServiceImpl implements TicketService {
 
     private static TicketTypeResponse ticketTypeResponse;
     private static TicketPaymentService ticketPaymentService = new TicketPaymentServiceImpl();
+    private static SeatReservationService seatReservationService = new SeatReservationServiceImpl();
 
     @Override
     public TicketTypeResponse purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests)
@@ -100,6 +104,8 @@ public class TicketServiceImpl implements TicketService {
             throw new InvalidPurchaseException("Total number of tickets bought at one occassion must be < than 25.");
 
         ticketPaymentService.makePayment((long) accountId, (int) ticketTypeResponse.getTotalPrice());
+        seatReservationService.reserveSeat((long) accountId,
+                (int) ticketTypeResponse.getCountAdult() + ticketTypeResponse.getCountChild());
 
         return ticketTypeResponse;
     }
