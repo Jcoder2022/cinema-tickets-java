@@ -2,6 +2,8 @@ package uk.gov.dwp.uc.pairtest;
 
 import java.net.Authenticator.RequestorType;
 
+import thirdparty.paymentgateway.TicketPaymentService;
+import thirdparty.paymentgateway.TicketPaymentServiceImpl;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeResponse;
 import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
@@ -53,6 +55,7 @@ public class TicketServiceImpl implements TicketService {
      */
 
     private static TicketTypeResponse ticketTypeResponse;
+    private static TicketPaymentService ticketPaymentService = new TicketPaymentServiceImpl();
 
     @Override
     public TicketTypeResponse purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests)
@@ -96,7 +99,10 @@ public class TicketServiceImpl implements TicketService {
         if ((countAdult + countChild + countInfant) > 25)
             throw new InvalidPurchaseException("Total number of tickets bought at one occassion must be < than 25.");
 
+        ticketPaymentService.makePayment((long) accountId, (int) ticketTypeResponse.getTotalPrice());
+
         return ticketTypeResponse;
     }
 
 }
+
